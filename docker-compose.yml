@@ -1,0 +1,34 @@
+services:
+  app:
+    container_name: cesizen-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mydatabase
+    ports:
+      - "3000:3000"
+
+  postgres:
+    container_name: cesizen-db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - ressources_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mydatabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ressources_data:
