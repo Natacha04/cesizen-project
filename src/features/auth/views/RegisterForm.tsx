@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 
 export function RegisterForm() {
+  const router = useRouter();
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   const isValid =
     !!firstname &&
@@ -18,12 +21,26 @@ export function RegisterForm() {
     !!password &&
     password === confirmPassword;
 
+  const handleSubmit = async (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    setError("");
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firstname, lastname, email, password }),
+    });
+
+    if (res.ok) {
+      router.push("/login");
+    } else {
+      const data = await res.json();
+      setError(data.error ?? "Une erreur est survenue.");
+    }
+  };
+
   return (
-    <Box
-      component="form"
-      onSubmit={(event) => event.preventDefault()}
-      sx={{ display: "grid", gap: 2 }}
-    >
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
       <Stack spacing={0.5}>
         <Typography variant="h6" component="h2">
           Création de compte
@@ -88,6 +105,8 @@ export function RegisterForm() {
         }
         fullWidth
       />
+
+      {error && <Alert severity="error">{error}</Alert>}
 
       <Button type="submit" variant="contained" size="large" disabled={!isValid}>
         Créer un compte

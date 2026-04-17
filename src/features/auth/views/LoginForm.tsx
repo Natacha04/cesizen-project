@@ -2,18 +2,35 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    setError("");
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Email ou mot de passe incorrect.");
+    } else {
+      router.push("/");
+    }
+  };
 
   return (
-    <Box
-      component="form"
-      onSubmit={(event) => event.preventDefault()}
-      sx={{ display: "grid", gap: 2 }}
-    >
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
       <Stack spacing={0.5}>
         <Typography variant="h6" component="h2">
           Accès utilisateur
@@ -40,6 +57,8 @@ export function LoginForm() {
         onChange={(event) => setPassword(event.target.value)}
         fullWidth
       />
+
+      {error && <Alert severity="error">{error}</Alert>}
 
       <Button
         type="submit"

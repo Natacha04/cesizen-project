@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Providers } from "./providers";
 import "./globals.css";
 import cesizenLogo from "./public/CESIZEN.png";
-
 
 export const metadata: Metadata = {
   title: {
@@ -20,20 +20,12 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
-        <div className="mobile-top-logo">
-<Image
-  src={cesizenLogo}
-  alt="Cesizen"
-  width={95}
-  height={95}
-  priority
-/>
-
-
-
-        </div>
-
-        <div className="page-content">{children}</div>
+        <Providers>
+          <div className="mobile-top-logo">
+            <Image src={cesizenLogo} alt="Cesizen" width={95} height={95} priority />
+          </div>
+          <div className="page-content">{children}</div>
+        </Providers>
       </body>
     </html>
   );
