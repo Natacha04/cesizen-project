@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -19,8 +19,7 @@ export function LoginForm() {
           Accès utilisateur
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          La couche UI est prête. Le branchement métier viendra ensuite via la
-          couche serveur.
+          Connectez-vous à votre espace personnel.
         </Typography>
       </Stack>
 
@@ -42,10 +41,6 @@ export function LoginForm() {
         fullWidth
       />
 
-      <Alert severity="info">
-        Aucun appel API n&apos;est encore branché sur ce formulaire.
-      </Alert>
-
       <Button
         type="submit"
         variant="contained"
@@ -57,7 +52,7 @@ export function LoginForm() {
 
       <Typography variant="body2" color="text.secondary">
         Pas encore de compte ?{" "}
-        <Link href="/register" style={{ color: "#8a3d1b", fontWeight: 700 }}>
+        <Link href="/register" style={{ color: "#19c26b", fontWeight: 700 }}>
           Créer un compte
         </Link>
       </Typography>

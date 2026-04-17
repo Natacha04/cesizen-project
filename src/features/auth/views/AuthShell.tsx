@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
 
 type AuthShellProps = {
@@ -7,60 +9,50 @@ type AuthShellProps = {
   children: ReactNode;
 };
 
-export function AuthShell({
-  title,
-  description,
-  children,
-}: AuthShellProps) {
+export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
     <>
       <PublicHeader />
-      <main
-        style={{
-          padding: "4rem 1.5rem 5rem",
-        }}
-      >
-        <section
-          style={{
-            maxWidth: "520px",
-            margin: "0 auto",
+      <Box component="main" sx={{ px: "1.5rem", pt: "4rem", pb: "5rem" }}>
+        <Box
+          component="section"
+          sx={{
+            maxWidth: 520,
+            mx: "auto",
             display: "grid",
             gap: "1.5rem",
           }}
         >
-          <div style={{ display: "grid", gap: "0.75rem", textAlign: "center" }}>
-            <h1
-              style={{
-                margin: 0,
+          <Box sx={{ display: "grid", gap: "0.75rem", textAlign: "center" }}>
+            <Typography
+              component="h1"
+              sx={{
+                m: 0,
                 fontSize: "clamp(2rem, 4vw, 3rem)",
                 lineHeight: 1.05,
+                fontWeight: 800,
                 color: "#1d2a35",
               }}
             >
               {title}
-            </h1>
-            <p
-              style={{
-                margin: 0,
-                color: "#44515d",
-                lineHeight: 1.6,
-              }}
-            >
+            </Typography>
+            <Typography sx={{ m: 0, color: "#44515d", lineHeight: 1.6 }}>
               {description}
-            </p>
-          </div>
-          <div
-            style={{
-              padding: "1.5rem",
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              p: "1.5rem",
               borderRadius: "24px",
               backgroundColor: "rgba(255, 255, 255, 0.76)",
               boxShadow: "0 24px 60px rgba(60, 47, 22, 0.12)",
             }}
           >
             {children}
-          </div>
-        </section>
-      </main>
+          </Box>
+        </Box>
+      </Box>
     </>
   );
 }

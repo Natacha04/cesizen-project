@@ -19,10 +19,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { DayCalendarSkeleton } from "@mui/x-date-pickers/DayCalendarSkeleton";
+import {
+  EmotionKind,
+  EMOTION_COLORS,
+  EMOTION_EMOJIS,
+  EMOTION_LABELS,
+} from "@/shared/constants/emotions";
 
 dayjs.extend(isoWeek);
 
-type EmotionKind = "joy" | "calm" | "sad" | "energy" | "stress";
 type PeriodFilter = "week" | "month" | "year";
 
 type EmotionEntry = {
@@ -34,20 +39,13 @@ type EmotionEntry = {
 
 type EmotionDefinition = Omit<EmotionEntry, "date">;
 
-const emotionPalette: Record<EmotionKind, string> = {
-  joy: "#ffd95f",
-  calm: "#8fe3c5",
-  sad: "#9bb7ff",
-  energy: "#19c26b",
-  stress: "#f09b73",
-};
-
 const emotionCatalog: EmotionDefinition[] = [
-  { emoji: "😊", label: "Joie", kind: "joy" },
-  { emoji: "😌", label: "Calme", kind: "calm" },
-  { emoji: "😔", label: "Tristesse", kind: "sad" },
-  { emoji: "🤩", label: "Energie", kind: "energy" },
-  { emoji: "😵", label: "Stress", kind: "stress" },
+  { emoji: EMOTION_EMOJIS.joy, label: EMOTION_LABELS.joy, kind: "joy" },
+  { emoji: EMOTION_EMOJIS.sadness, label: EMOTION_LABELS.sadness, kind: "sadness" },
+  { emoji: EMOTION_EMOJIS.anger, label: EMOTION_LABELS.anger, kind: "anger" },
+  { emoji: EMOTION_EMOJIS.fear, label: EMOTION_LABELS.fear, kind: "fear" },
+  { emoji: EMOTION_EMOJIS.surprise, label: EMOTION_LABELS.surprise, kind: "surprise" },
+  { emoji: EMOTION_EMOJIS.disgust, label: EMOTION_LABELS.disgust, kind: "disgust" },
 ];
 
 const periodLabels: Record<PeriodFilter, string> = {
@@ -133,7 +131,7 @@ function EmotionDay(props: PickersDayProps & { emotionEntries?: EmotionEntry[] }
           minWidth: 20,
           height: 20,
           borderRadius: "999px",
-          backgroundColor: entry ? emotionPalette[entry.kind] : undefined,
+          backgroundColor: entry ? EMOTION_COLORS[entry.kind] : undefined,
           boxShadow: entry ? "0 4px 12px rgba(0, 0, 0, 0.12)" : undefined,
         },
       }}
@@ -144,8 +142,8 @@ function EmotionDay(props: PickersDayProps & { emotionEntries?: EmotionEntry[] }
         outsideCurrentMonth={outsideCurrentMonth}
         sx={{
           ...(entry && {
-            backgroundColor: `${emotionPalette[entry.kind]}22`,
-            border: `1px solid ${emotionPalette[entry.kind]}`,
+            backgroundColor: `${EMOTION_COLORS[entry.kind]}22`,
+            border: `1px solid ${EMOTION_COLORS[entry.kind]}`,
             fontWeight: 700,
           }),
         }}
@@ -425,7 +423,7 @@ export function EmotionCalendar() {
                     placeItems: "center",
                     borderRadius: "18px",
                     fontSize: "1.75rem",
-                    bgcolor: `${emotionPalette[dominantEmotion.kind]}33`,
+                    bgcolor: `${EMOTION_COLORS[dominantEmotion.kind]}33`,
                   }}
                 >
                   {dominantEmotion.emoji}
@@ -488,10 +486,10 @@ export function EmotionCalendar() {
                       sx={{
                         height: 10,
                         borderRadius: "999px",
-                        bgcolor: `${emotionPalette[entry.kind]}22`,
+                        bgcolor: `${EMOTION_COLORS[entry.kind]}22`,
                         "& .MuiLinearProgress-bar": {
                           borderRadius: "999px",
-                          backgroundColor: emotionPalette[entry.kind],
+                          backgroundColor: EMOTION_COLORS[entry.kind],
                         },
                       }}
                     />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 
 export function RegisterForm() {
   const [firstname, setFirstname] = useState("");
@@ -12,10 +12,10 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const isValid =
-    Boolean(firstname) &&
-    Boolean(lastname) &&
-    Boolean(email) &&
-    Boolean(password) &&
+    !!firstname &&
+    !!lastname &&
+    !!email &&
+    !!password &&
     password === confirmPassword;
 
   return (
@@ -29,8 +29,7 @@ export function RegisterForm() {
           Création de compte
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          L&apos;inscription reste dans la feature auth, même si la route d&apos;entrée
-          vit dans l&apos;App Router.
+          Créez votre compte pour commencer à suivre vos émotions.
         </Typography>
       </Stack>
 
@@ -81,18 +80,14 @@ export function RegisterForm() {
         autoComplete="new-password"
         value={confirmPassword}
         onChange={(event) => setConfirmPassword(event.target.value)}
-        error={Boolean(confirmPassword) && password !== confirmPassword}
+        error={!!confirmPassword && password !== confirmPassword}
         helperText={
-          Boolean(confirmPassword) && password !== confirmPassword
+          !!confirmPassword && password !== confirmPassword
             ? "Les mots de passe doivent correspondre."
             : " "
         }
         fullWidth
       />
-
-      <Alert severity="info">
-        Le formulaire est prêt pour la validation métier et l&apos;appel serveur.
-      </Alert>
 
       <Button type="submit" variant="contained" size="large" disabled={!isValid}>
         Créer un compte
@@ -100,7 +95,7 @@ export function RegisterForm() {
 
       <Typography variant="body2" color="text.secondary">
         Déjà un compte ?{" "}
-        <Link href="/login" style={{ color: "#8a3d1b", fontWeight: 700 }}>
+        <Link href="/login" style={{ color: "#19c26b", fontWeight: 700 }}>
           Se connecter
         </Link>
       </Typography>

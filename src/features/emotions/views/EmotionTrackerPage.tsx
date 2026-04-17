@@ -10,20 +10,13 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
+import { EmotionKind, EMOTION_COLORS, EMOTION_LABELS } from "@/shared/constants/emotions";
 import angerImage from "@/app/public/emotions/colere.svg";
 import disgustImage from "@/app/public/emotions/degout.svg";
 import joyImage from "@/app/public/emotions/joie.svg";
 import fearImage from "@/app/public/emotions/peur.svg";
 import surpriseImage from "@/app/public/emotions/surprise.svg";
 import sadnessImage from "@/app/public/emotions/tristesse.svg";
-
-type EmotionKind =
-  | "surprise"
-  | "anger"
-  | "sadness"
-  | "fear"
-  | "joy"
-  | "disgust";
 
 type EmotionOption = {
   value: EmotionKind;
@@ -40,8 +33,8 @@ type EmotionTrackerPageProps = {
 const emotionOptions: EmotionOption[] = [
   {
     value: "surprise",
-    label: "Surpris",
-    color: "#d97745",
+    label: EMOTION_LABELS.surprise,
+    color: EMOTION_COLORS.surprise,
     image: surpriseImage,
     subEmotions: [
       "Etonnement",
@@ -54,8 +47,8 @@ const emotionOptions: EmotionOption[] = [
   },
   {
     value: "anger",
-    label: "Colere",
-    color: "#d62828",
+    label: EMOTION_LABELS.anger,
+    color: EMOTION_COLORS.anger,
     image: angerImage,
     subEmotions: [
       "Irritation",
@@ -68,8 +61,8 @@ const emotionOptions: EmotionOption[] = [
   },
   {
     value: "sadness",
-    label: "Tristesse",
-    color: "#1d5fd1",
+    label: EMOTION_LABELS.sadness,
+    color: EMOTION_COLORS.sadness,
     image: sadnessImage,
     subEmotions: [
       "Chagrin",
@@ -82,8 +75,8 @@ const emotionOptions: EmotionOption[] = [
   },
   {
     value: "fear",
-    label: "Peur",
-    color: "#6c7178",
+    label: EMOTION_LABELS.fear,
+    color: EMOTION_COLORS.fear,
     image: fearImage,
     subEmotions: [
       "Inquietude",
@@ -96,8 +89,8 @@ const emotionOptions: EmotionOption[] = [
   },
   {
     value: "joy",
-    label: "Joie",
-    color: "#f0b429",
+    label: EMOTION_LABELS.joy,
+    color: EMOTION_COLORS.joy,
     image: joyImage,
     subEmotions: [
       "Soulagement",
@@ -110,8 +103,8 @@ const emotionOptions: EmotionOption[] = [
   },
   {
     value: "disgust",
-    label: "Degout",
-    color: "#7b9e45",
+    label: EMOTION_LABELS.disgust,
+    color: EMOTION_COLORS.disgust,
     image: disgustImage,
     subEmotions: [
       "Rejet",
