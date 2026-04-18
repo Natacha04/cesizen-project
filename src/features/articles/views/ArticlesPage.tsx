@@ -1,52 +1,51 @@
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+"use client";
+
+import { useEffect, useState } from "react";
 import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
 
+type Ressource = {
+  id: string;
+  title: string;
+  content: string;
+  imageUrl: string | null;
+  readingTime: number;
+  createdAt: string;
+};
+
 export function ArticlesPage() {
+  const [ressources, setRessources] = useState<Ressource[]>([]);
+
+  useEffect(() => {
+    fetch("/api/ressource")
+      .then((res) => res.json())
+      .then((data) => setRessources(data.ressources ?? []));
+  }, []);
+
   return (
     <>
       <PublicHeader />
+      <main style={{ padding: "6rem 2rem 2rem", maxWidth: 920, margin: "0 auto" }}>
+        <h1>Articles</h1>
 
-      <Box
-        component="main"
-        sx={{
-          width: "min(100%, 920px)",
-          mx: "auto",
-          px: { xs: 2, lg: 4 },
-          pt: { xs: 16, lg: 12 },
-          pb: { xs: 14, lg: 8 },
-        }}
-      >
-        <Paper
-          elevation={0}
-          sx={{
-            p: { xs: 3, sm: 4 },
-            borderRadius: "28px",
-            border: "1px solid rgba(25, 194, 107, 0.12)",
-            backgroundColor: "rgba(255, 255, 255, 0.86)",
-            boxShadow: "0 18px 40px rgba(33, 54, 42, 0.12)",
-          }}
-        >
-          <Stack spacing={1.5}>
-            <Typography
-              variant="overline"
-              sx={{ color: "#19c26b", fontWeight: 800, letterSpacing: "0.16em" }}
-            >
-              Articles
-            </Typography>
-            <Typography variant="h3" sx={{ color: "#101418", fontWeight: 800 }}>
-              Ressources et contenus a venir
-            </Typography>
-            <Typography variant="body1" sx={{ color: "#52616d", maxWidth: 620 }}>
-              Cette page est prete pour accueillir tes articles, ressources et
-              contenus de sensibilisation. Le header pointe maintenant vers une
-              vraie route, donc tu peux remplir cette section quand tu veux.
-            </Typography>
-          </Stack>
-        </Paper>
-      </Box>
+        {ressources.length === 0 ? (
+          <p>Aucun article disponible.</p>
+        ) : (
+          <div style={{ display: "grid", gap: "2rem" }}>
+            {ressources.map((r) => (
+              <div key={r.id} style={{ border: "1px solid #eee", borderRadius: 12, padding: "1.5rem" }}>
+                {r.imageUrl && (
+                  <img src={r.imageUrl} alt={r.title} style={{ width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 8, marginBottom: "1rem" }} />
+                )}
+                <p style={{ color: "#52616d", fontSize: "0.85rem", margin: "0 0 0.5rem" }}>
+                  {r.readingTime} min de lecture · {new Date(r.createdAt).toLocaleDateString("fr-FR")}
+                </p>
+                <h2 style={{ margin: "0 0 1rem" }}>{r.title}</h2>
+                <p>{r.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </>
   );
 }
