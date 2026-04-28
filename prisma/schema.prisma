@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -18,39 +12,36 @@ enum Role {
   ADMIN
 }
 
-enum RessourceState {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum RessourceType {
-  TEXT
-  IMAGE
-  VIDEO
-  ACTIVITY
-}
-
 model User {
-  id         String       @id @default(cuid())
-  email      String       @unique
-  firstname  String
-  lastname   String
-  password   String
-  role       Role         @default(USER)
-  ressources Ressource[]
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  id        String         @id @default(cuid())
+  email     String         @unique
+  firstName String
+  lastName  String
+  password  String
+  role      Role           @default(USER)
+  resources Resource[]
+  emotions  EmotionEntry[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 }
 
-model Ressource {
-  id          String         @id @default(cuid())
-  name        String
-  description String
-  shared      Boolean        @default(false)
-  state       RessourceState @default(DRAFT)
-  type        RessourceType  @default(TEXT)
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  imageUrl    String?
+  readingTime Int
   userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime       @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model EmotionEntry {
+  id         String   @id @default(cuid())
+  date       DateTime
+  kind       String
+  subEmotion String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }

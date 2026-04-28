@@ -2,27 +2,19 @@
 
 import * as React from "react";
 import dayjs from "dayjs";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import ButtonBase from "@mui/material/ButtonBase";
-import Image, { StaticImageData } from "next/image";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
-import { EmotionKind, EMOTION_COLORS, EMOTION_LABELS } from "@/shared/constants/emotions";
-import angerImage from "@/app/public/emotions/colere.svg";
-import disgustImage from "@/app/public/emotions/degout.svg";
-import joyImage from "@/app/public/emotions/joie.svg";
-import fearImage from "@/app/public/emotions/peur.svg";
-import surpriseImage from "@/app/public/emotions/surprise.svg";
-import sadnessImage from "@/app/public/emotions/tristesse.svg";
+import { FluentEmoji } from "@lobehub/fluent-emoji";
+import { EmotionKind, EMOTION_COLORS, EMOTION_EMOJIS, EMOTION_LABELS } from "@/shared/constants/emotions";
 
 type EmotionOption = {
   value: EmotionKind;
-  label: string;
-  color: string;
-  image: StaticImageData;
   subEmotions: string[];
 };
 
@@ -31,90 +23,12 @@ type EmotionTrackerPageProps = {
 };
 
 const emotionOptions: EmotionOption[] = [
-  {
-    value: "surprise",
-    label: EMOTION_LABELS.surprise,
-    color: EMOTION_COLORS.surprise,
-    image: surpriseImage,
-    subEmotions: [
-      "Etonnement",
-      "Stupeur",
-      "Choc",
-      "Curiosite",
-      "Emerveillement",
-      "Confusion",
-    ],
-  },
-  {
-    value: "anger",
-    label: EMOTION_LABELS.anger,
-    color: EMOTION_COLORS.anger,
-    image: angerImage,
-    subEmotions: [
-      "Irritation",
-      "Frustration",
-      "Agacement",
-      "Rage",
-      "Impatience",
-      "Resentiment",
-    ],
-  },
-  {
-    value: "sadness",
-    label: EMOTION_LABELS.sadness,
-    color: EMOTION_COLORS.sadness,
-    image: sadnessImage,
-    subEmotions: [
-      "Chagrin",
-      "Deception",
-      "Solitude",
-      "Abattement",
-      "Nostalgie",
-      "Melancolie",
-    ],
-  },
-  {
-    value: "fear",
-    label: EMOTION_LABELS.fear,
-    color: EMOTION_COLORS.fear,
-    image: fearImage,
-    subEmotions: [
-      "Inquietude",
-      "Anxiete",
-      "Terreur",
-      "Apprehension",
-      "Panique",
-      "Crainte",
-    ],
-  },
-  {
-    value: "joy",
-    label: EMOTION_LABELS.joy,
-    color: EMOTION_COLORS.joy,
-    image: joyImage,
-    subEmotions: [
-      "Soulagement",
-      "Contentement",
-      "Fierte",
-      "Gratitude",
-      "Enthousiasme",
-      "Euphorie",
-    ],
-  },
-  {
-    value: "disgust",
-    label: EMOTION_LABELS.disgust,
-    color: EMOTION_COLORS.disgust,
-    image: disgustImage,
-    subEmotions: [
-      "Rejet",
-      "Aversion",
-      "Repulsion",
-      "Ecoeurement",
-      "Malaise",
-      "Degout profond",
-    ],
-  },
+  { value: "surprise", subEmotions: ["Etonnement", "Stupeur", "Choc", "Curiosite", "Emerveillement", "Confusion"] },
+  { value: "anger", subEmotions: ["Irritation", "Frustration", "Agacement", "Rage", "Impatience", "Resentiment"] },
+  { value: "sadness", subEmotions: ["Chagrin", "Deception", "Solitude", "Abattement", "Nostalgie", "Melancolie"] },
+  { value: "fear", subEmotions: ["Inquietude", "Anxiete", "Terreur", "Apprehension", "Panique", "Crainte"] },
+  { value: "joy", subEmotions: ["Soulagement", "Contentement", "Fierte", "Gratitude", "Enthousiasme", "Euphorie"] },
+  { value: "disgust", subEmotions: ["Rejet", "Aversion", "Repulsion", "Ecoeurement", "Malaise", "Degout profond"] },
 ];
 
 export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
@@ -122,51 +36,42 @@ export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
   const [selectedEmotion, setSelectedEmotion] = React.useState<EmotionKind>("surprise");
   const [selectedSubEmotion, setSelectedSubEmotion] = React.useState<string | null>(null);
   const [step, setStep] = React.useState<"emotion" | "subEmotion">("emotion");
+  const [error, setError] = React.useState("");
 
-  const selectedOption = React.useMemo(
-    () =>
-      emotionOptions.find((emotion) => emotion.value === selectedEmotion) ??
-      emotionOptions[0],
-    [selectedEmotion],
-  );
+  const selected = emotionOptions.find((e) => e.value === selectedEmotion) ?? emotionOptions[0];
 
-  const handlePrimaryValidation = () => {
-    setSelectedSubEmotion(null);
-    setStep("subEmotion");
+  const handleFinalValidation = async () => {
+    const res = await fetch("/api/emotions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date: parsedDate.toISOString(), kind: selectedEmotion, subEmotion: selectedSubEmotion }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error ?? "Une erreur est survenue.");
+      return;
+    }
+
+    window.location.href = "/";
+  };
+
+  const btnStyle = {
+    minWidth: 140, px: 3, py: 1.15, borderRadius: "999px", textTransform: "none" as const,
+    fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" },
+    "&.Mui-disabled": { backgroundColor: "rgba(36,95,66,0.35)", color: "rgba(255,255,255,0.82)" },
   };
 
   return (
     <>
       <PublicHeader />
-
-      <Box
-        sx={{
-          width: "min(100%, 420px)",
-          mx: "auto",
-          mt: { xs: 15, lg: 10 },
-          px: { xs: 1.5, sm: 0 },
-          pb: { xs: 14, lg: 6 },
-        }}
-      >
-        <Paper
-          elevation={0}
-          sx={{
-            px: { xs: 2.25, sm: 3 },
-            py: { xs: 3.25, sm: 3.5 },
-            borderRadius: "26px",
-            border: "1px solid rgba(20, 35, 26, 0.06)",
-            backgroundColor: "rgba(255, 255, 255, 0.92)",
-            boxShadow: "0 18px 40px rgba(33, 54, 42, 0.14)",
-          }}
-        >
+      <Box sx={{ width: "min(100%, 420px)", mx: "auto", mt: { xs: 15, lg: 10 }, px: { xs: 1.5, sm: 0 }, pb: { xs: 14, lg: 6 } }}>
+        <Paper elevation={0} sx={{ px: { xs: 2.25, sm: 3 }, py: { xs: 3.25, sm: 3.5 }, borderRadius: "26px", border: "1px solid rgba(20,35,26,0.06)", backgroundColor: "rgba(255,255,255,0.92)", boxShadow: "0 18px 40px rgba(33,54,42,0.14)" }}>
           <Stack spacing={3.25} alignItems="center">
             {step === "emotion" ? (
               <>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="body1"
-                    sx={{ color: "#101418", fontWeight: 700, fontSize: "1.35rem" }}
-                  >
+                  <Typography variant="body1" sx={{ color: "#101418", fontWeight: 700, fontSize: "1.35rem" }}>
                     Comment tu te sens aujourd&apos;hui ?
                   </Typography>
                   <Typography variant="caption" sx={{ mt: 0.75, color: "#6d7a86" }}>
@@ -175,177 +80,72 @@ export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
                 </Box>
 
                 <Stack spacing={1.25} alignItems="center">
-                  <Image
-                    src={selectedOption.image}
-                    alt={selectedOption.label}
-                    width={136}
-                    height={136}
-                    priority
-                  />
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: selectedOption.color,
-                      fontWeight: 700,
-                      textAlign: "center",
-                    }}
-                  >
-                    {selectedOption.label}
+                  <FluentEmoji emoji={EMOTION_EMOJIS[selectedEmotion]} size={136} />
+                  <Typography variant="h6" sx={{ color: EMOTION_COLORS[selectedEmotion], fontWeight: 700 }}>
+                    {EMOTION_LABELS[selectedEmotion]}
                   </Typography>
                 </Stack>
 
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                    gap: 2,
-                    width: "100%",
-                    maxWidth: 210,
-                  }}
-                >
+                <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 2, width: "100%", maxWidth: 210 }}>
                   {emotionOptions.map((emotion) => (
                     <ButtonBase
                       key={emotion.value}
                       onClick={() => setSelectedEmotion(emotion.value)}
                       sx={{
-                        width: 52,
-                        height: 52,
-                        justifySelf: "center",
-                        borderRadius: "16px",
-                        backgroundColor:
-                          selectedEmotion === emotion.value
-                            ? `${emotion.color}20`
-                            : `${emotion.color}10`,
-                        border:
-                          selectedEmotion === emotion.value
-                            ? `2px solid ${emotion.color}`
-                            : "1px solid rgba(17, 24, 39, 0.08)",
-                        boxShadow:
-                          selectedEmotion === emotion.value
-                            ? `0 10px 22px ${emotion.color}30`
-                            : "0 7px 16px rgba(31, 41, 55, 0.16)",
-                        transition: "transform 140ms ease, box-shadow 140ms ease",
-                        "&:hover": {
-                          transform: "translateY(-1px)",
-                          boxShadow: "0 10px 20px rgba(31, 41, 55, 0.2)",
-                        },
+                        width: 52, height: 52, justifySelf: "center", borderRadius: "16px",
+                        backgroundColor: selectedEmotion === emotion.value ? `${EMOTION_COLORS[emotion.value]}20` : `${EMOTION_COLORS[emotion.value]}10`,
+                        border: selectedEmotion === emotion.value ? `2px solid ${EMOTION_COLORS[emotion.value]}` : "1px solid rgba(17,24,39,0.08)",
+                        boxShadow: selectedEmotion === emotion.value ? `0 10px 22px ${EMOTION_COLORS[emotion.value]}30` : "0 7px 16px rgba(31,41,55,0.16)",
+                        transition: "transform 140ms ease",
+                        "&:hover": { transform: "translateY(-1px)" },
                       }}
-                      >
-                      <Box
-                        sx={{
-                          width: 36,
-                          height: 36,
-                          display: "grid",
-                          placeItems: "center",
-                          borderRadius: "12px",
-                          backgroundColor: `${emotion.color}1c`,
-                        }}
-                      >
-                        <Image
-                          src={emotion.image}
-                          alt={emotion.label}
-                          width={30}
-                          height={30}
-                        />
+                    >
+                      <Box sx={{ width: 36, height: 36, display: "grid", placeItems: "center", borderRadius: "12px", backgroundColor: `${EMOTION_COLORS[emotion.value]}1c` }}>
+                        <FluentEmoji emoji={EMOTION_EMOJIS[emotion.value]} size={30} />
                       </Box>
                     </ButtonBase>
                   ))}
                 </Box>
 
-                <Button
-                  variant="contained"
-                  disableElevation
-                  onClick={handlePrimaryValidation}
-                  sx={{
-                    minWidth: 140,
-                    px: 3,
-                    py: 1.15,
-                    borderRadius: "999px",
-                    textTransform: "none",
-                    fontWeight: 700,
-                    backgroundColor: "#245f42",
-                    "&:hover": {
-                      backgroundColor: "#1e5138",
-                    },
-                  }}
-                >
+                <Button variant="contained" disableElevation onClick={() => { setSelectedSubEmotion(null); setStep("subEmotion"); }} sx={btnStyle}>
                   Validation
                 </Button>
               </>
             ) : (
               <>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "#101418",
-                      fontWeight: 700,
-                      display: "inline-flex",
-                      pb: 0.5,
-                      borderBottom: `3px solid ${selectedOption.color}`,
-                    }}
-                  >
-                    {selectedOption.label}
+                  <Typography variant="h6" sx={{ color: "#101418", fontWeight: 700, display: "inline-flex", pb: 0.5, borderBottom: `3px solid ${EMOTION_COLORS[selectedEmotion]}` }}>
+                    {EMOTION_LABELS[selectedEmotion]}
                   </Typography>
                 </Box>
 
                 <Stack spacing={1.5} sx={{ width: "100%", maxWidth: 230 }}>
-                  {selectedOption.subEmotions.map((subEmotion) => (
+                  {selected.subEmotions.map((sub) => (
                     <ButtonBase
-                      key={subEmotion}
-                      onClick={() => setSelectedSubEmotion(subEmotion)}
+                      key={sub}
+                      onClick={() => setSelectedSubEmotion(sub)}
                       sx={{
-                        width: "100%",
-                        borderRadius: "18px",
-                        px: 2.5,
-                        py: 1.35,
-                        backgroundColor:
-                          selectedSubEmotion === subEmotion
-                            ? `${selectedOption.color}18`
-                            : "#ffffff",
-                        border:
-                          selectedSubEmotion === subEmotion
-                            ? `1px solid ${selectedOption.color}`
-                            : "1px solid rgba(17, 24, 39, 0.06)",
-                        boxShadow: "0 7px 16px rgba(31, 41, 55, 0.14)",
+                        width: "100%", borderRadius: "18px", px: 2.5, py: 1.35,
+                        backgroundColor: selectedSubEmotion === sub ? `${EMOTION_COLORS[selectedEmotion]}18` : "#ffffff",
+                        border: selectedSubEmotion === sub ? `1px solid ${EMOTION_COLORS[selectedEmotion]}` : "1px solid rgba(17,24,39,0.06)",
+                        boxShadow: "0 7px 16px rgba(31,41,55,0.14)",
                       }}
                     >
-                      <Typography
-                        sx={{
-                          width: "100%",
-                          textAlign: "center",
-                          color: "#101418",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {subEmotion}
+                      <Typography sx={{ width: "100%", textAlign: "center", color: "#101418", fontWeight: 600 }}>
+                        {sub}
                       </Typography>
                     </ButtonBase>
                   ))}
                 </Stack>
 
-                <Button
-                  variant="contained"
-                  disableElevation
-                  disabled={!selectedSubEmotion}
-                  sx={{
-                    minWidth: 140,
-                    px: 3,
-                    py: 1.15,
-                    borderRadius: "999px",
-                    textTransform: "none",
-                    fontWeight: 700,
-                    backgroundColor: "#245f42",
-                    "&:hover": {
-                      backgroundColor: "#1e5138",
-                    },
-                    "&.Mui-disabled": {
-                      backgroundColor: "rgba(36, 95, 66, 0.35)",
-                      color: "rgba(255, 255, 255, 0.82)",
-                    },
-                  }}
-                >
+                {error && <Alert severity="error" sx={{ width: "100%", borderRadius: "12px" }}>{error}</Alert>}
+
+                <Button variant="contained" disableElevation disabled={!selectedSubEmotion} onClick={handleFinalValidation} sx={btnStyle}>
                   Validation
+                </Button>
+
+                <Button variant="text" onClick={() => setStep("emotion")} sx={{ textTransform: "none", color: "#52616d" }}>
+                  Retour
                 </Button>
               </>
             )}
