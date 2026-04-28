@@ -7,11 +7,12 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 export type PublicHeaderItem = {
   label: string;
   icon: SvgIconComponent;
+  href: string;
 };
 
 export const publicHeaderItems: PublicHeaderItem[] = [
-  { label: "Accueil", icon: HomeIcon },
-  { label: "Emotion", icon: InsertEmoticonIcon },
-  { label: "Articles", icon: MenuBookIcon },
-  { label: "Compte", icon: AccountCircleIcon },
+  { label: "Accueil", icon: HomeIcon, href: "/" },
+  { label: "Emotion", icon: InsertEmoticonIcon, href: "/emotions/tracker" },
+  { label: "Articles", icon: MenuBookIcon, href: "/articles" },
+  { label: "Compte", icon: AccountCircleIcon, href: "/profil" },
 ];

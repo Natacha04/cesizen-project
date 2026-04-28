@@ -3,8 +3,15 @@
 import * as React from "react";
 import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
+import { FluentEmoji } from "@lobehub/fluent-emoji";
+import { useRouter } from "next/navigation";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import { DayCalendarSkeleton } from "@mui/x-date-pickers/DayCalendarSkeleton";
+import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
+
 import Box from "@mui/material/Box";
-import Badge from "@mui/material/Badge";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -13,18 +20,7 @@ import Stack from "@mui/material/Stack";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import { useRouter } from "next/navigation";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import { DayCalendarSkeleton } from "@mui/x-date-pickers/DayCalendarSkeleton";
-import {
-  EmotionKind,
-  EMOTION_COLORS,
-  EMOTION_EMOJIS,
-  EMOTION_LABELS,
-} from "@/shared/constants/emotions";
+import { EmotionKind, EMOTION_COLORS, EMOTION_EMOJIS, EMOTION_LABELS } from "@/shared/constants/emotions";
 
 dayjs.extend(isoWeek);
 
@@ -32,478 +28,204 @@ type PeriodFilter = "week" | "month" | "year";
 
 type EmotionEntry = {
   date: string;
-  emoji: string;
-  label: string;
   kind: EmotionKind;
 };
 
-type EmotionDefinition = Omit<EmotionEntry, "date">;
-
-const emotionCatalog: EmotionDefinition[] = [
-  { emoji: EMOTION_EMOJIS.joy, label: EMOTION_LABELS.joy, kind: "joy" },
-  { emoji: EMOTION_EMOJIS.sadness, label: EMOTION_LABELS.sadness, kind: "sadness" },
-  { emoji: EMOTION_EMOJIS.anger, label: EMOTION_LABELS.anger, kind: "anger" },
-  { emoji: EMOTION_EMOJIS.fear, label: EMOTION_LABELS.fear, kind: "fear" },
-  { emoji: EMOTION_EMOJIS.surprise, label: EMOTION_LABELS.surprise, kind: "surprise" },
-  { emoji: EMOTION_EMOJIS.disgust, label: EMOTION_LABELS.disgust, kind: "disgust" },
-];
-
-const periodLabels: Record<PeriodFilter, string> = {
-  week: "Semaine",
-  month: "Mois",
-  year: "Annee",
-};
-
-function getSeededNumber(seed: number, min: number, max: number) {
-  const normalized = Math.abs(Math.sin(seed) * 10000) % 1;
-
-  return Math.floor(normalized * (max - min + 1)) + min;
-}
-
-function buildYearEntries(anchorDate: Dayjs) {
-  const entries: EmotionEntry[] = [];
-  const year = anchorDate.year();
-
-  for (let month = 0; month < 12; month += 1) {
-    const monthDate = dayjs(new Date(year, month, 1));
-    const entriesCount = getSeededNumber(year * 50 + month * 13, 5, 9);
-    const usedDays = new Set<number>();
-
-    for (let index = 0; index < entriesCount; index += 1) {
-      const daysInMonth = monthDate.daysInMonth();
-      let day = getSeededNumber(year * 1000 + month * 100 + index * 17, 1, daysInMonth);
-
-      while (usedDays.has(day)) {
-        day = (day % daysInMonth) + 1;
-      }
-
-      usedDays.add(day);
-
-      const emotion =
-        emotionCatalog[
-          getSeededNumber(
-            year * 2000 + month * 100 + index * 19,
-            0,
-            emotionCatalog.length - 1,
-          )
-        ];
-
-      entries.push({
-        ...emotion,
-        date: monthDate.date(day).format("YYYY-MM-DD"),
-      });
-    }
-  }
-
-  return entries.sort((first, second) => first.date.localeCompare(second.date));
-}
-
-function fakeFetch(date: Dayjs, { signal }: { signal: AbortSignal }) {
-  return new Promise<{ entries: EmotionEntry[] }>((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      resolve({ entries: buildYearEntries(date) });
-    }, 450);
-
-    signal.onabort = () => {
-      clearTimeout(timeout);
-      reject(new DOMException("aborted", "AbortError"));
-    };
-  });
-}
-
-const initialValue = dayjs();
+const allKinds: EmotionKind[] = ["joy", "sadness", "anger", "fear", "surprise", "disgust"];
 
 function EmotionDay(props: PickersDayProps & { emotionEntries?: EmotionEntry[] }) {
   const { emotionEntries = [], day, outsideCurrentMonth, ...other } = props;
-
   const entry = !outsideCurrentMonth
-    ? emotionEntries.find((currentEntry) => dayjs(currentEntry.date).isSame(day, "day"))
+    ? emotionEntries.find((e) => dayjs(e.date).isSame(day, "day"))
     : undefined;
 
   return (
-    <Badge
-      key={day.toString()}
-      overlap="circular"
-      badgeContent={entry ? entry.emoji : undefined}
-      sx={{
-        "& .MuiBadge-badge": {
-          fontSize: "0.75rem",
-          minWidth: 20,
-          height: 20,
-          borderRadius: "999px",
-          backgroundColor: entry ? EMOTION_COLORS[entry.kind] : undefined,
-          boxShadow: entry ? "0 4px 12px rgba(0, 0, 0, 0.12)" : undefined,
-        },
-      }}
-    >
+    <Box key={day.toString()} sx={{ position: "relative" }}>
       <PickersDay
         {...other}
         day={day}
         outsideCurrentMonth={outsideCurrentMonth}
-        sx={{
-          ...(entry && {
-            backgroundColor: `${EMOTION_COLORS[entry.kind]}22`,
-            border: `1px solid ${EMOTION_COLORS[entry.kind]}`,
-            fontWeight: 700,
-          }),
-        }}
+        sx={entry ? {
+          backgroundColor: `${EMOTION_COLORS[entry.kind]}22`,
+          border: `1px solid ${EMOTION_COLORS[entry.kind]}`,
+          fontWeight: 700,
+        } : {}}
       />
-    </Badge>
+      {entry && (
+        <Box sx={{
+          position: "absolute",
+          top: -4,
+          right: -4,
+          width: 18,
+          height: 18,
+          borderRadius: "50%",
+          backgroundColor: EMOTION_COLORS[entry.kind],
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pointerEvents: "none",
+        }}>
+          <FluentEmoji emoji={EMOTION_EMOJIS[entry.kind]} size={12} />
+        </Box>
+      )}
+    </Box>
   );
 }
 
 export function EmotionCalendar() {
   const router = useRouter();
-  const requestAbortController = React.useRef<AbortController | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [selectedDate, setSelectedDate] = React.useState(initialValue);
-  const [displayMonth, setDisplayMonth] = React.useState(initialValue.startOf("month"));
-  const [selectedPeriod, setSelectedPeriod] =
-    React.useState<PeriodFilter>("month");
-  const [emotionEntries, setEmotionEntries] = React.useState<EmotionEntry[]>([]);
-
-  const fetchEmotionEntries = React.useCallback((date: Dayjs) => {
-    const controller = new AbortController();
-
-    fakeFetch(date, {
-      signal: controller.signal,
-    })
-      .then(({ entries }) => {
-        setEmotionEntries(entries);
-        setIsLoading(false);
-      })
-      .catch((error: Error) => {
-        if (error.name !== "AbortError") {
-          throw error;
-        }
-      });
-
-    requestAbortController.current = controller;
-  }, []);
+  const [selectedDate, setSelectedDate] = React.useState(dayjs());
+  const [selectedPeriod, setSelectedPeriod] = React.useState<PeriodFilter>("month");
+  const [entries, setEntries] = React.useState<EmotionEntry[]>([]);
 
   React.useEffect(() => {
-    setIsLoading(true);
-    fetchEmotionEntries(initialValue);
-
-    return () => requestAbortController.current?.abort();
-  }, [fetchEmotionEntries]);
-
-  const monthEntries = React.useMemo(
-    () =>
-      emotionEntries.filter((entry) =>
-        dayjs(entry.date).isSame(displayMonth, "month"),
-      ),
-    [displayMonth, emotionEntries],
-  );
-
-  const periodRange = React.useMemo(() => {
-    switch (selectedPeriod) {
-      case "week":
-        return {
-          start: selectedDate.startOf("isoWeek"),
-          end: selectedDate.endOf("isoWeek"),
-        };
-      case "year":
-        return {
-          start: selectedDate.startOf("year"),
-          end: selectedDate.endOf("year"),
-        };
-      case "month":
-      default:
-        return {
-          start: selectedDate.startOf("month"),
-          end: selectedDate.endOf("month"),
-        };
-    }
-  }, [selectedDate, selectedPeriod]);
-
-  const entriesForSelectedPeriod = React.useMemo(
-    () =>
-      emotionEntries.filter((entry) => {
-        const entryDate = dayjs(entry.date);
-
-        return (
-          !entryDate.isBefore(periodRange.start, "day") &&
-          !entryDate.isAfter(periodRange.end, "day")
+    fetch("/api/emotions")
+      .then((res) => res.json())
+      .then((data) => {
+        setEntries(
+          (data.emotions ?? []).map((e: { date: string; kind: EmotionKind }) => ({
+            date: dayjs(e.date).format("YYYY-MM-DD"),
+            kind: e.kind,
+          }))
         );
-      }),
-    [emotionEntries, periodRange.end, periodRange.start],
-  );
+        setIsLoading(false);
+      });
+  }, []);
 
-  const groupedEntries = React.useMemo(
-    () =>
-      emotionCatalog
-        .map((emotion) => ({
-          ...emotion,
-          count: entriesForSelectedPeriod.filter(
-            (entry) => entry.kind === emotion.kind,
-          ).length,
-        }))
-        .filter((emotion) => emotion.count > 0)
-        .sort((first, second) => second.count - first.count),
-    [entriesForSelectedPeriod],
-  );
+  const monthEntries = entries.filter((e) => dayjs(e.date).isSame(selectedDate, "month"));
 
-  const dominantEmotion = groupedEntries[0];
-  const highestCount = dominantEmotion?.count ?? 1;
+  const periodStart =
+    selectedPeriod === "week" ? selectedDate.startOf("isoWeek") :
+    selectedPeriod === "year" ? selectedDate.startOf("year") :
+    selectedDate.startOf("month");
 
-  const handleMonthChange = (date: Dayjs) => {
-    requestAbortController.current?.abort();
-    const normalizedDate = date.startOf("month");
+  const periodEnd =
+    selectedPeriod === "week" ? selectedDate.endOf("isoWeek") :
+    selectedPeriod === "year" ? selectedDate.endOf("year") :
+    selectedDate.endOf("month");
 
-    setIsLoading(true);
-    setSelectedDate(normalizedDate);
-    setDisplayMonth(normalizedDate);
-    fetchEmotionEntries(normalizedDate);
-  };
+  const periodEntries = entries.filter((e) => {
+    const d = dayjs(e.date);
+    return !d.isBefore(periodStart, "day") && !d.isAfter(periodEnd, "day");
+  });
 
-  const handleDateChange = (value: Dayjs | null) => {
-    if (!value) {
-      return;
-    }
+  const grouped = allKinds
+    .map((kind) => ({ kind, count: periodEntries.filter((e) => e.kind === kind).length }))
+    .filter((e) => e.count > 0)
+    .sort((a, b) => b.count - a.count);
 
-    setSelectedDate(value);
-    setDisplayMonth(value.startOf("month"));
-  };
+  const dominant = grouped[0];
+  const max = dominant?.count ?? 1;
+
+  const periodLabel = selectedPeriod === "week" ? "semaine" : selectedPeriod === "month" ? "mois" : "annee";
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Stack
+      <Box
         sx={{
-          width: "min(100%, 420px)",
+          width: "min(100%, 900px)",
           mx: "auto",
           mt: { xs: 16, lg: 10 },
+          px: { xs: 2, sm: 3, lg: 0 },
+          pb: { xs: 14, lg: 6 },
+          display: { xs: "flex", lg: "grid" },
+          flexDirection: "column",
+          gridTemplateColumns: { lg: "420px 1fr" },
           gap: 2,
+          alignItems: "start",
         }}
       >
-        <Paper
-          elevation={0}
-          sx={{
-            px: { xs: 2, sm: 3 },
-            py: 3,
-            borderRadius: "28px",
-            border: "1px solid rgba(25, 194, 107, 0.12)",
-            backgroundColor: "rgba(255, 255, 255, 0.84)",
-            backdropFilter: "blur(16px)",
-            boxShadow: "0 20px 60px rgba(42, 66, 54, 0.08)",
-          }}
-        >
+        <Paper elevation={0} sx={{ px: { xs: 2, sm: 3 }, py: 3, borderRadius: "28px", border: "1px solid rgba(25, 194, 107, 0.12)", backgroundColor: "rgba(255,255,255,0.84)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
           <Stack spacing={2.5}>
             <Box>
-              <Typography
-                variant="overline"
-                sx={{ color: "#19c26b", fontWeight: 800, letterSpacing: "0.16em" }}
-              >
-                Suivi emotionnel
-              </Typography>
-              <Typography variant="h5" sx={{ color: "#1f2933", fontWeight: 800 }}>
-                Ton calendrier du mois
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 0.5, color: "#52616d" }}>
-                Les jours remplis affichent l&apos;emotion enregistree.
-              </Typography>
+              <Typography variant="overline" sx={{ color: "#19c26b", fontWeight: 800 }}>Suivi emotionnel</Typography>
+              <Typography variant="h5" sx={{ color: "#1f2933", fontWeight: 800 }}>Ton calendrier du mois</Typography>
+              <Typography variant="body2" sx={{ mt: 0.5, color: "#52616d" }}>Les jours remplis affichent l&apos;emotion enregistree.</Typography>
             </Box>
 
             <DateCalendar
               value={selectedDate}
               loading={isLoading}
-              onChange={handleDateChange}
-              onMonthChange={handleMonthChange}
+              onChange={(value: Dayjs | null) => { if (value) setSelectedDate(value); }}
+              onMonthChange={(date: Dayjs) => setSelectedDate(date.startOf("month"))}
               renderLoading={() => <DayCalendarSkeleton />}
-              slots={{
-                day: EmotionDay,
-              }}
-              slotProps={{
-                day: {
-                  emotionEntries: monthEntries,
-                } as PickersDayProps & { emotionEntries: EmotionEntry[] },
-              }}
-              sx={{
-                width: "100%",
-                "& .MuiPickersCalendarHeader-root": {
-                  px: 1,
-                },
-                "& .MuiDayCalendar-weekDayLabel": {
-                  color: "#64707d",
-                  fontWeight: 700,
-                },
-              }}
+              slots={{ day: EmotionDay }}
+              slotProps={{ day: { emotionEntries: monthEntries } as PickersDayProps & { emotionEntries: EmotionEntry[] } }}
+              sx={{ width: "100%", "& .MuiDayCalendar-weekDayLabel": { color: "#64707d", fontWeight: 700 } }}
             />
 
             <Button
               variant="contained"
-              onClick={() =>
-                router.push(
-                  `/emotions/tracker?date=${dayjs().format("YYYY-MM-DD")}`,
-                )
-              }
-              sx={{
-                alignSelf: "flex-start",
-                px: 2.25,
-                py: 1.2,
-                borderRadius: "999px",
-                textTransform: "none",
-                fontWeight: 700,
-                backgroundColor: "#19c26b",
-                boxShadow: "0 14px 30px rgba(25, 194, 107, 0.22)",
-                "&:hover": {
-                  backgroundColor: "#11ad5d",
-                },
-              }}
+              onClick={() => router.push(`/emotions/tracker?date=${dayjs().format("YYYY-MM-DD")}`)}
+              sx={{ alignSelf: "flex-start", px: 2.25, py: 1.2, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#19c26b", "&:hover": { backgroundColor: "#11ad5d" } }}
             >
               Mon emotion du jour
             </Button>
           </Stack>
         </Paper>
 
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            borderRadius: "24px",
-            border: "1px solid rgba(25, 194, 107, 0.12)",
-            bgcolor: "rgba(255, 255, 255, 0.7)",
-            backdropFilter: "blur(16px)",
-            boxShadow: "0 20px 60px rgba(42, 66, 54, 0.08)",
-          }}
-        >
-          <Stack spacing={1.5}>
-            <Typography variant="overline" sx={{ color: "#6d7a86" }}>
-              Periode d&apos;analyse
-            </Typography>
-
-            <ToggleButtonGroup
-              exclusive
-              value={selectedPeriod}
-              onChange={(_, value: PeriodFilter | null) => {
-                if (value) {
-                  setSelectedPeriod(value);
-                }
-              }}
-              sx={{
-                alignSelf: "flex-start",
-                bgcolor: "rgba(255, 255, 255, 0.82)",
-                borderRadius: "999px",
-                p: 0.4,
-                boxShadow: "0 10px 24px rgba(22, 36, 28, 0.06)",
-              }}
-            >
-              <ToggleButton value="week" sx={{ border: 0, borderRadius: "999px" }}>
-                Semaine
-              </ToggleButton>
-              <ToggleButton value="month" sx={{ border: 0, borderRadius: "999px" }}>
-                Mois
-              </ToggleButton>
-              <ToggleButton value="year" sx={{ border: 0, borderRadius: "999px" }}>
-                Annee
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Stack>
-        </Paper>
-
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            borderRadius: "24px",
-            border: "1px solid rgba(25, 194, 107, 0.12)",
-            bgcolor: "rgba(255, 255, 255, 0.7)",
-            backdropFilter: "blur(16px)",
-            boxShadow: "0 20px 60px rgba(42, 66, 54, 0.08)",
-          }}
-        >
-          {dominantEmotion ? (
-            <Stack spacing={2}>
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <Box
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    display: "grid",
-                    placeItems: "center",
-                    borderRadius: "18px",
-                    fontSize: "1.75rem",
-                    bgcolor: `${EMOTION_COLORS[dominantEmotion.kind]}33`,
-                  }}
-                >
-                  {dominantEmotion.emoji}
-                </Box>
-
-                <Box>
-                  <Typography variant="overline" sx={{ color: "#6d7a86" }}>
-                    Emotion dominante
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ color: "#1f2933", fontWeight: 800 }}
-                  >
-                    {dominantEmotion.label}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#52616d" }}>
-                    {dominantEmotion.label} ressort le plus sur cette{" "}
-                    {periodLabels[selectedPeriod].toLowerCase()}.
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                <Chip
-                  label={`${entriesForSelectedPeriod.length} jours renseignes`}
-                  sx={{ fontWeight: 700 }}
-                />
-                <Chip
-                  label={`Periode : ${periodLabels[selectedPeriod]}`}
-                  sx={{ fontWeight: 700 }}
-                />
-                <Chip
-                  label={`Repere : ${selectedDate.format("DD/MM/YYYY")}`}
-                  sx={{ fontWeight: 700 }}
-                />
-              </Stack>
-
-              <Stack spacing={1.25}>
-                {groupedEntries.map((entry) => (
-                  <Box key={entry.kind}>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ mb: 0.75 }}
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "#1f2933", fontWeight: 600 }}
-                      >
-                        {entry.emoji} {entry.label}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: "#52616d" }}>
-                        {entry.count}
-                      </Typography>
-                    </Stack>
-                    <LinearProgress
-                      variant="determinate"
-                      value={(entry.count / highestCount) * 100}
-                      sx={{
-                        height: 10,
-                        borderRadius: "999px",
-                        bgcolor: `${EMOTION_COLORS[entry.kind]}22`,
-                        "& .MuiLinearProgress-bar": {
-                          borderRadius: "999px",
-                          backgroundColor: EMOTION_COLORS[entry.kind],
-                        },
-                      }}
-                    />
-                  </Box>
-                ))}
-              </Stack>
+        <Stack gap={2}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: "24px", border: "1px solid rgba(25, 194, 107, 0.12)", bgcolor: "rgba(255,255,255,0.7)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
+            <Stack spacing={1.5}>
+              <Typography variant="overline" sx={{ color: "#6d7a86" }}>Periode d&apos;analyse</Typography>
+              <ToggleButtonGroup
+                exclusive
+                value={selectedPeriod}
+                onChange={(_, v: PeriodFilter | null) => { if (v) setSelectedPeriod(v); }}
+                sx={{ alignSelf: "flex-start", bgcolor: "rgba(255,255,255,0.82)", borderRadius: "999px", p: 0.4 }}
+              >
+                <ToggleButton value="week" sx={{ border: 0, borderRadius: "999px" }}>Semaine</ToggleButton>
+                <ToggleButton value="month" sx={{ border: 0, borderRadius: "999px" }}>Mois</ToggleButton>
+                <ToggleButton value="year" sx={{ border: 0, borderRadius: "999px" }}>Annee</ToggleButton>
+              </ToggleButtonGroup>
             </Stack>
-          ) : (
-              <Typography variant="body2" sx={{ color: "#52616d" }}>
-                Aucune emotion n&apos;est disponible pour cette periode.
-              </Typography>
+          </Paper>
+
+          <Paper elevation={0} sx={{ p: 2, borderRadius: "24px", border: "1px solid rgba(25, 194, 107, 0.12)", bgcolor: "rgba(255,255,255,0.7)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
+            {dominant ? (
+              <Stack spacing={2}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Box sx={{ width: 56, height: 56, display: "grid", placeItems: "center", borderRadius: "18px", bgcolor: `${EMOTION_COLORS[dominant.kind]}33` }}>
+                    <FluentEmoji emoji={EMOTION_EMOJIS[dominant.kind]} size={36} />
+                  </Box>
+                  <Box>
+                    <Typography variant="overline" sx={{ color: "#6d7a86" }}>Emotion dominante</Typography>
+                    <Typography variant="h6" sx={{ color: "#1f2933", fontWeight: 800 }}>{EMOTION_LABELS[dominant.kind]}</Typography>
+                    <Typography variant="body2" sx={{ color: "#52616d" }}>{EMOTION_LABELS[dominant.kind]} ressort le plus sur ce {periodLabel}.</Typography>
+                  </Box>
+                </Stack>
+
+                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                  <Chip label={`${periodEntries.length} entrees`} sx={{ fontWeight: 700 }} />
+                  <Chip label={`Periode : ${periodLabel}`} sx={{ fontWeight: 700 }} />
+                </Stack>
+
+                <Stack spacing={1.25}>
+                  {grouped.map((e) => (
+                    <Box key={e.kind}>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.75 }}>
+                        <Stack direction="row" spacing={0.75} alignItems="center">
+                          <FluentEmoji emoji={EMOTION_EMOJIS[e.kind]} size={20} />
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>{EMOTION_LABELS[e.kind]}</Typography>
+                        </Stack>
+                        <Typography variant="body2" sx={{ color: "#52616d" }}>{e.count}</Typography>
+                      </Stack>
+                      <LinearProgress
+                        variant="determinate"
+                        value={(e.count / max) * 100}
+                        sx={{ height: 10, borderRadius: "999px", bgcolor: `${EMOTION_COLORS[e.kind]}22`, "& .MuiLinearProgress-bar": { borderRadius: "999px", backgroundColor: EMOTION_COLORS[e.kind] } }}
+                      />
+                    </Box>
+                  ))}
+                </Stack>
+              </Stack>
+            ) : (
+              <Typography variant="body2" sx={{ color: "#52616d" }}>Aucune emotion disponible pour cette periode.</Typography>
             )}
-        </Paper>
-      </Stack>
+          </Paper>
+        </Stack>
+      </Box>
     </LocalizationProvider>
   );
 }

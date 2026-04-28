@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useRouter, usePathname } from "next/navigation";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import Box from "@mui/material/Box";
@@ -8,7 +8,12 @@ import Paper from "@mui/material/Paper";
 import { publicHeaderItems } from "@/shared/ui/layout/publicHeaderItems";
 
 export function PublicHeaderMobile() {
-  const [value, setValue] = React.useState(0);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentIndex = publicHeaderItems.findIndex(
+    (item) => item.href === pathname || (item.href !== "/" && pathname.startsWith(item.href))
+  );
 
   return (
     <Box
@@ -35,12 +40,8 @@ export function PublicHeaderMobile() {
       >
         <BottomNavigation
           showLabels={false}
-          value={value}
-          onChange={(event, newValue) => setValue(newValue)}
-          sx={{
-            bgcolor: "#ffffff",
-            height: 72,
-          }}
+          value={currentIndex}
+          sx={{ bgcolor: "#ffffff", height: 72 }}
         >
           {publicHeaderItems.map((item, index) => {
             const Icon = item.icon;
@@ -51,12 +52,11 @@ export function PublicHeaderMobile() {
                 label={item.label}
                 icon={<Icon />}
                 value={index}
+                onClick={() => router.push(item.href)}
                 sx={{
                   color: "#2f6b4f",
                   minWidth: 0,
-                  "&.Mui-selected": {
-                    color: "#1f5a3f",
-                  },
+                  "&.Mui-selected": { color: "#1f5a3f" },
                 }}
               />
             );

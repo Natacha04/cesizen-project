@@ -59,6 +59,7 @@ img {
 
 .page-content {
   padding-top: 96px;
+  padding-bottom: 104px;
 }
 
 @media (min-width: 1024px) {
@@ -68,5 +69,6 @@ img {
 
   .page-content {
     padding-top: 0;
+    padding-bottom: 0;
   }
 }
