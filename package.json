@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@lobehub/fluent-emoji": "4.1.0",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@mui/x-date-pickers": "^8.27.2",
@@ -26,7 +27,8 @@
     "pg": "8.20.0",
     "prisma": "^7.4.2",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-twemoji": "0.7.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

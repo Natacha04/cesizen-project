@@ -3,32 +3,33 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+
+const steps = [
+  { key: "lastName", title: "Votre nom", placeholder: "Nom", type: "text", autoComplete: "family-name" },
+  { key: "firstName", title: "Votre prénom", placeholder: "Prénom", type: "text", autoComplete: "given-name" },
+  { key: "email", title: "Votre adresse mail", placeholder: "Adresse mail", type: "email", autoComplete: "email" },
+  { key: "password", title: "Votre mot de passe", placeholder: "Mot de passe", type: "password", autoComplete: "new-password" },
+];
 
 export function RegisterForm() {
   const router = useRouter();
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({ lastName: "", firstName: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
 
-  const isValid =
-    !!firstname &&
-    !!lastname &&
-    !!email &&
-    !!password &&
-    password === confirmPassword;
+  const current = steps[step];
+  const value = form[current.key as keyof typeof form];
+  const isLast = step === steps.length - 1;
+  const canNext = isLast ? !!form.password && form.password === form.confirmPassword : !!value;
 
-  const handleSubmit = async (event: React.SyntheticEvent) => {
-    event.preventDefault();
-    setError("");
+  const handleNext = async () => {
+    if (!isLast) return setStep(step + 1);
 
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firstname, lastname, email, password }),
+      body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password }),
     });
 
     if (res.ok) {
@@ -40,83 +41,47 @@ export function RegisterForm() {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
-      <Stack spacing={0.5}>
-        <Typography variant="h6" component="h2">
-          Création de compte
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Créez votre compte pour commencer à suivre vos émotions.
-        </Typography>
-      </Stack>
+    <Box sx={{ display: "grid", gap: 2 }}>
+      <Typography variant="h6" textAlign="center">{current.title}</Typography>
 
-      <Box
-        sx={{
-          display: "grid",
-          gap: 2,
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
-        }}
-      >
+      <TextField
+        type={current.type}
+        placeholder={current.placeholder}
+        autoComplete={current.autoComplete}
+        value={value}
+        onChange={(e) => setForm({ ...form, [current.key]: e.target.value })}
+        fullWidth
+      />
+
+      {isLast && (
         <TextField
-          label="Prénom"
-          autoComplete="given-name"
-          value={firstname}
-          onChange={(event) => setFirstname(event.target.value)}
+          type="password"
+          placeholder="Confirmation mot de passe"
+          autoComplete="new-password"
+          value={form.confirmPassword}
+          onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
+          error={!!form.confirmPassword && form.password !== form.confirmPassword}
+          helperText={!!form.confirmPassword && form.password !== form.confirmPassword ? "Les mots de passe doivent correspondre." : " "}
           fullWidth
         />
-        <TextField
-          label="Nom"
-          autoComplete="family-name"
-          value={lastname}
-          onChange={(event) => setLastname(event.target.value)}
-          fullWidth
-        />
-      </Box>
-
-      <TextField
-        label="Email"
-        type="email"
-        autoComplete="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        fullWidth
-      />
-
-      <TextField
-        label="Mot de passe"
-        type="password"
-        autoComplete="new-password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        fullWidth
-      />
-
-      <TextField
-        label="Confirmer le mot de passe"
-        type="password"
-        autoComplete="new-password"
-        value={confirmPassword}
-        onChange={(event) => setConfirmPassword(event.target.value)}
-        error={!!confirmPassword && password !== confirmPassword}
-        helperText={
-          !!confirmPassword && password !== confirmPassword
-            ? "Les mots de passe doivent correspondre."
-            : " "
-        }
-        fullWidth
-      />
+      )}
 
       {error && <Alert severity="error">{error}</Alert>}
 
-      <Button type="submit" variant="contained" size="large" disabled={!isValid}>
-        Créer un compte
+      <Button variant="contained" size="large" disabled={!canNext} onClick={handleNext}
+        sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
+        {isLast ? "Créer mon compte" : "Suivant"}
       </Button>
 
-      <Typography variant="body2" color="text.secondary">
+      {step > 0 && (
+        <Button variant="text" onClick={() => setStep(step - 1)} sx={{ textTransform: "none", color: "#52616d" }}>
+          Retour
+        </Button>
+      )}
+
+      <Typography variant="body2" color="text.secondary" textAlign="center">
         Déjà un compte ?{" "}
-        <Link href="/login" style={{ color: "#19c26b", fontWeight: 700 }}>
-          Se connecter
-        </Link>
+        <Link href="/login" style={{ color: "#19c26b", fontWeight: 700 }}>Se connecter</Link>
       </Typography>
     </Box>
   );

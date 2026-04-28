@@ -7,14 +7,14 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import cesizenLogo from "@/app/public/CESIZEN.png";
 
-const desktopHeaderItems = [
+const baseItems = [
   { label: "Accueil", href: "/" },
   { label: "Tracker d'emotions", href: "/emotions/tracker" },
   { label: "Articles", href: "/articles" },
   { label: "A propos", href: "/a-propos" },
-  { label: "Connexion", href: "/login" },
 ];
 
 function isCurrentPath(pathname: string, href: string) {
@@ -27,6 +27,14 @@ function isCurrentPath(pathname: string, href: string) {
 
 export function PublicHeaderDesktop() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const desktopHeaderItems = [
+    ...baseItems,
+    session
+      ? { label: "Mon profil", href: "/profil" }
+      : { label: "Connexion", href: "/login" },
+  ];
 
   return (
     <Box
