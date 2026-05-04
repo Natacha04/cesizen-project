@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
 
 type AuthShellProps = {
   title: string;
@@ -12,7 +11,6 @@ type AuthShellProps = {
 export function AuthShell({ title, description, children }: AuthShellProps) {
   return (
     <>
-      <PublicHeader />
       <Box component="main" sx={{ px: "1.5rem", pt: "4rem", pb: "5rem" }}>
         <Box
           component="section"
