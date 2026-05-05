@@ -13,23 +13,11 @@ import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
 import { FluentEmoji } from "@lobehub/fluent-emoji";
 import { EmotionKind, EMOTION_COLORS, EMOTION_EMOJIS, EMOTION_LABELS } from "@/shared/constants/emotions";
 
-type EmotionOption = {
-  value: EmotionKind;
-  subEmotions: string[];
-};
+const ALL_KINDS: EmotionKind[] = ["surprise", "anger", "sadness", "fear", "joy", "disgust"];
 
 type EmotionTrackerPageProps = {
   date?: string;
 };
-
-const emotionOptions: EmotionOption[] = [
-  { value: "surprise", subEmotions: ["Etonnement", "Stupeur", "Choc", "Curiosite", "Emerveillement", "Confusion"] },
-  { value: "anger", subEmotions: ["Irritation", "Frustration", "Agacement", "Rage", "Impatience", "Resentiment"] },
-  { value: "sadness", subEmotions: ["Chagrin", "Deception", "Solitude", "Abattement", "Nostalgie", "Melancolie"] },
-  { value: "fear", subEmotions: ["Inquietude", "Anxiete", "Terreur", "Apprehension", "Panique", "Crainte"] },
-  { value: "joy", subEmotions: ["Soulagement", "Contentement", "Fierte", "Gratitude", "Enthousiasme", "Euphorie"] },
-  { value: "disgust", subEmotions: ["Rejet", "Aversion", "Repulsion", "Ecoeurement", "Malaise", "Degout profond"] },
-];
 
 export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
   const parsedDate = date && dayjs(date).isValid() ? dayjs(date) : dayjs();
@@ -37,8 +25,13 @@ export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
   const [selectedSubEmotion, setSelectedSubEmotion] = React.useState<string | null>(null);
   const [step, setStep] = React.useState<"emotion" | "subEmotion">("emotion");
   const [error, setError] = React.useState("");
+  const [subEmotions, setSubEmotions] = React.useState<string[]>([]);
 
-  const selected = emotionOptions.find((e) => e.value === selectedEmotion) ?? emotionOptions[0];
+  React.useEffect(() => {
+    fetch(`/api/sub-emotions?kind=${selectedEmotion}`)
+      .then((res) => res.json())
+      .then((data) => setSubEmotions((data.subEmotions ?? []).map((s: { label: string }) => s.label)));
+  }, [selectedEmotion]);
 
   const handleFinalValidation = async () => {
     const res = await fetch("/api/emotions", {
@@ -87,21 +80,21 @@ export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
                 </Stack>
 
                 <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 2, width: "100%", maxWidth: 210 }}>
-                  {emotionOptions.map((emotion) => (
+                  {ALL_KINDS.map((kind) => (
                     <ButtonBase
-                      key={emotion.value}
-                      onClick={() => setSelectedEmotion(emotion.value)}
+                      key={kind}
+                      onClick={() => setSelectedEmotion(kind)}
                       sx={{
                         width: 52, height: 52, justifySelf: "center", borderRadius: "16px",
-                        backgroundColor: selectedEmotion === emotion.value ? `${EMOTION_COLORS[emotion.value]}20` : `${EMOTION_COLORS[emotion.value]}10`,
-                        border: selectedEmotion === emotion.value ? `2px solid ${EMOTION_COLORS[emotion.value]}` : "1px solid rgba(17,24,39,0.08)",
-                        boxShadow: selectedEmotion === emotion.value ? `0 10px 22px ${EMOTION_COLORS[emotion.value]}30` : "0 7px 16px rgba(31,41,55,0.16)",
+                        backgroundColor: selectedEmotion === kind ? `${EMOTION_COLORS[kind]}20` : `${EMOTION_COLORS[kind]}10`,
+                        border: selectedEmotion === kind ? `2px solid ${EMOTION_COLORS[kind]}` : "1px solid rgba(17,24,39,0.08)",
+                        boxShadow: selectedEmotion === kind ? `0 10px 22px ${EMOTION_COLORS[kind]}30` : "0 7px 16px rgba(31,41,55,0.16)",
                         transition: "transform 140ms ease",
                         "&:hover": { transform: "translateY(-1px)" },
                       }}
                     >
-                      <Box sx={{ width: 36, height: 36, display: "grid", placeItems: "center", borderRadius: "12px", backgroundColor: `${EMOTION_COLORS[emotion.value]}1c` }}>
-                        <FluentEmoji emoji={EMOTION_EMOJIS[emotion.value]} size={30} />
+                      <Box sx={{ width: 36, height: 36, display: "grid", placeItems: "center", borderRadius: "12px", backgroundColor: `${EMOTION_COLORS[kind]}1c` }}>
+                        <FluentEmoji emoji={EMOTION_EMOJIS[kind]} size={30} />
                       </Box>
                     </ButtonBase>
                   ))}
@@ -120,7 +113,7 @@ export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
                 </Box>
 
                 <Stack spacing={1.5} sx={{ width: "100%", maxWidth: 230 }}>
-                  {selected.subEmotions.map((sub) => (
+                  {subEmotions.map((sub) => (
                     <ButtonBase
                       key={sub}
                       onClick={() => setSelectedSubEmotion(sub)}
