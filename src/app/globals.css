@@ -62,6 +62,10 @@ img {
   padding-bottom: 104px;
 }
 
+.app-footer {
+  padding-bottom: 104px;
+}
+
 @media (min-width: 1024px) {
   .mobile-top-logo {
     display: none;
@@ -70,5 +74,9 @@ img {
   .page-content {
     padding-top: 0;
     padding-bottom: 0;
+  }
+
+  .app-footer {
+    padding-bottom: 40px;
   }
 }

@@ -79,10 +79,16 @@ export function ProfilePage() {
             <Typography variant="body2" sx={{ color: "#52616d" }}>{session?.user?.email}</Typography>
 
             {isAdmin && (
-              <Button component={Link} href="/admin" variant="contained"
-                sx={{ alignSelf: "flex-start", px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
-                Gestion des articles
-              </Button>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ alignSelf: "flex-start" }}>
+                <Button component={Link} href="/admin" variant="contained"
+                  sx={{ px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
+                  Gestion des articles
+                </Button>
+                <Button component={Link} href="/admin/emotions" variant="contained"
+                  sx={{ px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
+                  Gestion des émotions
+                </Button>
+              </Stack>
             )}
 
             <Button variant="outlined" onClick={() => signOut({ callbackUrl: "/login" })}
