@@ -32,7 +32,7 @@ export default function RootLayout({
             <Image src={cesizenLogo} alt="Cesizen" width={95} height={95} priority />
           </div>
           <div className="page-content">{children}</div>
-          <footer style={{ textAlign: "center", padding: "24px 16px 40px", color: "#8a9aa8", fontSize: "0.85rem" }}>
+          <footer className="app-footer" style={{ textAlign: "center", paddingTop: "24px", paddingLeft: "16px", paddingRight: "16px", color: "#8a9aa8", fontSize: "0.85rem" }}>
             <PwaInstallButton />
             <PushNotificationManager />
             <div style={{ marginTop: 8 }}>© 2025 Cesizen — Ministère de la santé et de la prévention</div>

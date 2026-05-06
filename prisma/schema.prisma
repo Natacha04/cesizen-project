@@ -19,6 +19,7 @@ model User {
   lastName  String
   password  String
   role      Role           @default(USER)
+  isActive  Boolean        @default(true)
   resources Resource[]
   emotions  EmotionEntry[]
   createdAt DateTime       @default(now())
@@ -34,6 +35,13 @@ model Resource {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
+}
+
+model SubEmotion {
+  id        String   @id @default(cuid())
+  label     String
+  kind      String
+  createdAt DateTime @default(now())
 }
 
 model EmotionEntry {

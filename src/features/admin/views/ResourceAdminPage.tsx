@@ -9,6 +9,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { useRouter } from "next/navigation";
 import { PublicHeader } from "@/shared/ui/layout/PublicHeader";
 
 type Resource = {
@@ -22,6 +23,7 @@ type Resource = {
 const emptyForm = { title: "", content: "", imageUrl: "", readingTime: "" };
 
 export function ResourceAdminPage() {
+  const router = useRouter();
   const [resources, setResources] = React.useState<Resource[]>([]);
   const [form, setForm] = React.useState(emptyForm);
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -93,6 +95,21 @@ export function ResourceAdminPage() {
         }}
       >
         <Stack spacing={2}>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Button
+              variant="contained"
+              sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}
+            >
+              Articles
+            </Button>
+            <Button variant="text" onClick={() => router.push("/admin/emotions")} sx={{ textTransform: "none", color: "#52616d" }}>
+              Émotions
+            </Button>
+            <Button variant="text" onClick={() => router.push("/admin/users")} sx={{ textTransform: "none", color: "#52616d" }}>
+              Utilisateurs
+            </Button>
+          </Stack>
+
           <Paper
             elevation={0}
             sx={{

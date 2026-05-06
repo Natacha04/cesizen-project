@@ -129,14 +129,14 @@ export function EmotionCalendar() {
           mt: { xs: 16, lg: 10 },
           px: { xs: 2, sm: 3, lg: 0 },
           pb: { xs: 14, lg: 6 },
-          display: { xs: "flex", lg: "grid" },
+          display: { xs: "flex", md: "grid" },
           flexDirection: "column",
-          gridTemplateColumns: { lg: "420px 1fr" },
+          gridTemplateColumns: { md: "420px 1fr" },
           gap: 2,
-          alignItems: "start",
+          alignItems: { xs: "center", md: "start" },
         }}
       >
-        <Paper elevation={0} sx={{ px: { xs: 2, sm: 3 }, py: 3, borderRadius: "28px", border: "1px solid rgba(25, 194, 107, 0.12)", backgroundColor: "rgba(255,255,255,0.84)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
+        <Paper elevation={0} sx={{ width: { xs: "min(100%, 420px)", md: "auto" }, px: { xs: 2, sm: 3 }, py: 3, borderRadius: "28px", border: "1px solid rgba(25, 194, 107, 0.12)", backgroundColor: "rgba(255,255,255,0.84)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
           <Stack spacing={2.5}>
             <Box>
               <Typography variant="overline" sx={{ color: "#19c26b", fontWeight: 800 }}>Suivi emotionnel</Typography>
@@ -165,7 +165,7 @@ export function EmotionCalendar() {
           </Stack>
         </Paper>
 
-        <Stack gap={2}>
+        <Stack gap={2} sx={{ width: { xs: "min(100%, 420px)", md: "auto" } }}>
           <Paper elevation={0} sx={{ p: 2, borderRadius: "24px", border: "1px solid rgba(25, 194, 107, 0.12)", bgcolor: "rgba(255,255,255,0.7)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
             <Stack spacing={1.5}>
               <Typography variant="overline" sx={{ color: "#6d7a86" }}>Periode d&apos;analyse</Typography>

@@ -34,4 +34,4 @@ COPY --from=builder /app/src/generated ./src/generated
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start -- --hostname 0.0.0.0"]
+CMD ["sh", "-c", "npx prisma migrate resolve --applied 20260418075815_simplify_ressource 2>/dev/null; npx prisma migrate resolve --applied 20260427160628_english_schema 2>/dev/null; npx prisma migrate deploy && npm start -- --hostname 0.0.0.0"]

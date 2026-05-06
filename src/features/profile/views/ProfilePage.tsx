@@ -6,12 +6,14 @@ import { FluentEmoji } from "@lobehub/fluent-emoji";
 import isoWeek from "dayjs/plugin/isoWeek";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
@@ -31,6 +33,37 @@ export function ProfilePage() {
 
   const [selectedPeriod, setSelectedPeriod] = React.useState<PeriodFilter>("month");
   const [entries, setEntries] = React.useState<EmotionEntry[]>([]);
+
+  const [pwForm, setPwForm] = React.useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [pwError, setPwError] = React.useState("");
+  const [pwSuccess, setPwSuccess] = React.useState("");
+
+  const handlePasswordChange = async () => {
+    setPwError("");
+    setPwSuccess("");
+
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      setPwError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    const res = await fetch("/api/user/password", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setPwError(data.error ?? "Une erreur est survenue.");
+      return;
+    }
+
+    setPwSuccess("Mot de passe modifié avec succès.");
+    setPwForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  };
+
+  const canChangePw = !!pwForm.currentPassword && !!pwForm.newPassword && pwForm.newPassword === pwForm.confirmPassword;
 
   React.useEffect(() => {
     fetch("/api/emotions")
@@ -79,15 +112,68 @@ export function ProfilePage() {
             <Typography variant="body2" sx={{ color: "#52616d" }}>{session?.user?.email}</Typography>
 
             {isAdmin && (
-              <Button component={Link} href="/admin" variant="contained"
-                sx={{ alignSelf: "flex-start", px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
-                Gestion des articles
-              </Button>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ alignSelf: "flex-start" }}>
+                <Button component={Link} href="/admin" variant="contained"
+                  sx={{ px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
+                  Gestion des articles
+                </Button>
+                <Button component={Link} href="/admin/emotions" variant="contained"
+                  sx={{ px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
+                  Gestion des émotions
+                </Button>
+                <Button component={Link} href="/admin/users" variant="contained"
+                  sx={{ px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
+                  Gestion des utilisateurs
+                </Button>
+              </Stack>
             )}
 
             <Button variant="outlined" onClick={() => signOut({ callbackUrl: "/login" })}
               sx={{ alignSelf: "flex-start", px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, borderColor: "rgba(36,95,66,0.4)", color: "#245f42", "&:hover": { borderColor: "#245f42" } }}>
               Se déconnecter
+            </Button>
+          </Stack>
+        </Paper>
+
+        {/* Changement de mot de passe */}
+        <Paper elevation={0} sx={{ px: { xs: 2, sm: 3 }, py: 3, borderRadius: "28px", border: "1px solid rgba(25, 194, 107, 0.12)", backgroundColor: "rgba(255,255,255,0.84)", boxShadow: "0 20px 60px rgba(42,66,54,0.08)" }}>
+          <Stack spacing={2}>
+            <Typography variant="overline" sx={{ color: "#19c26b", fontWeight: 800 }}>Changer mon mot de passe</Typography>
+
+            <TextField
+              label="Mot de passe actuel"
+              type="password"
+              value={pwForm.currentPassword}
+              onChange={(e) => setPwForm({ ...pwForm, currentPassword: e.target.value })}
+              fullWidth
+            />
+            <TextField
+              label="Nouveau mot de passe"
+              type="password"
+              value={pwForm.newPassword}
+              onChange={(e) => setPwForm({ ...pwForm, newPassword: e.target.value })}
+              fullWidth
+            />
+            <TextField
+              label="Confirmer le nouveau mot de passe"
+              type="password"
+              value={pwForm.confirmPassword}
+              onChange={(e) => setPwForm({ ...pwForm, confirmPassword: e.target.value })}
+              error={!!pwForm.confirmPassword && pwForm.newPassword !== pwForm.confirmPassword}
+              helperText={!!pwForm.confirmPassword && pwForm.newPassword !== pwForm.confirmPassword ? "Les mots de passe ne correspondent pas." : " "}
+              fullWidth
+            />
+
+            {pwError && <Alert severity="error">{pwError}</Alert>}
+            {pwSuccess && <Alert severity="success">{pwSuccess}</Alert>}
+
+            <Button
+              variant="contained"
+              disabled={!canChangePw}
+              onClick={handlePasswordChange}
+              sx={{ alignSelf: "flex-start", px: 2.25, py: 1, borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}
+            >
+              Modifier le mot de passe
             </Button>
           </Stack>
         </Paper>
