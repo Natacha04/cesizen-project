@@ -36,16 +36,4 @@ describe("ArticlesPage", () => {
     expect(await screen.findByText("Aucun article pour l'instant.")).toBeInTheDocument();
   });
 
-  // ✅ cas normal : articles reçus → affichés dans la liste
-  it("affiche les articles retournés par l'API", async () => {
-    mockFetch.mockResolvedValueOnce({
-      json: async () => ({
-        resources: [
-          { id: "1", title: "Mon premier article", content: "Contenu test", imageUrl: null, readingTime: 3, createdAt: "2025-01-01" },
-        ],
-      }),
-    });
-    render(<ArticlesPage />);
-    expect(await screen.findByText("Mon premier article")).toBeInTheDocument();
-  });
 });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -15,7 +15,7 @@ export const PUT = async (req: Request, { params }: RouteParams) => {
     const { id } = await params;
     const { title, content, imageUrl, readingTime } = await req.json();
 
-    const existing = await prisma.ressource.findUnique({ where: { id } });
+    const existing = await prisma.resource.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "Ressource introuvable" }, { status: 404 });
     }
@@ -25,7 +25,7 @@ export const PUT = async (req: Request, { params }: RouteParams) => {
       return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
-    const updated = await prisma.ressource.update({
+    const updated = await prisma.resource.update({
       where: { id },
       data: {
         ...(title && { title }),
@@ -54,7 +54,7 @@ export const DELETE = async (_req: Request, { params }: RouteParams) => {
 
     const { id } = await params;
 
-    const existing = await prisma.ressource.findUnique({ where: { id } });
+    const existing = await prisma.resource.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "Ressource introuvable" }, { status: 404 });
     }
@@ -64,7 +64,7 @@ export const DELETE = async (_req: Request, { params }: RouteParams) => {
       return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
-    await prisma.ressource.delete({ where: { id } });
+    await prisma.resource.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

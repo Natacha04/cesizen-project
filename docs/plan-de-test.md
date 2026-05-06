@@ -14,12 +14,12 @@ Définir la stratégie de test du projet Cesizen afin de garantir la qualité de
 |----------------------|-------------------------|---------------------|
 | Authentification     | LoginForm, RegisterForm | ✅                  |
 | Shell d'auth         | AuthShell               | ✅                  |
-| Tracker d'émotions   | EmotionTrackerPage      | ✅                  |
+| Tracker d'émotions   | EmotionTrackerPage      | 🔜 Prévu            |
 | Calendrier émotions  | EmotionCalendar         | ✅                  |
 | Page Articles        | ArticlesPage            | ✅                  |
 | Page À propos        | AboutPage               | 🔜 Prévu            |
 | Page d'accueil       | HomePage                | 🔜 Prévu            |
-| API REST (back-end)  | Routes Next.js / Prisma | 🔜 Tests E2E prévus |
+| API REST (back-end)  | Routes Next.js / Prisma | 🔜 Prévu            |
 
 ### Hors périmètre (version actuelle)
 

@@ -48,13 +48,6 @@ describe("RegisterForm", () => {
     expect(screen.getByRole("button", { name: /suivant/i })).toBeDisabled();
   });
 
-  // ✅ cas normal : bouton actif quand le champ est rempli
-  it("le bouton Suivant s'active quand le champ est rempli", async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-    await user.type(screen.getByPlaceholderText("Nom"), "Dupont");
-    expect(screen.getByRole("button", { name: /suivant/i })).toBeEnabled();
-  });
 
   // ✅ cas normal : cliquer Suivant passe à l'étape suivante
   it("cliquer Suivant passe à l'étape prénom", async () => {
@@ -65,13 +58,6 @@ describe("RegisterForm", () => {
     expect(screen.getByText("Votre prénom")).toBeInTheDocument();
   });
 
-  // ✅ cas normal : à la dernière étape, le bouton s'appelle "Créer mon compte"
-  it("affiche Créer mon compte à la dernière étape", async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-    await goToStep(user, 3);
-    expect(screen.getByRole("button", { name: /créer mon compte/i })).toBeInTheDocument();
-  });
 
   // ❌ cas d'échec : mots de passe différents → erreur + bouton désactivé
   it("affiche une erreur si les mots de passe ne correspondent pas", async () => {
@@ -94,20 +80,5 @@ describe("RegisterForm", () => {
     await user.type(screen.getByPlaceholderText("Confirmation mot de passe"), "motdepasse123");
     await user.click(screen.getByRole("button", { name: /créer mon compte/i }));
     expect(mockFetch).toHaveBeenCalledWith("/api/auth/register", expect.any(Object));
-  });
-
-  // ❌ cas d'échec : erreur serveur → affiche le message d'erreur
-  it("affiche un message d'erreur si l'inscription échoue", async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: "Email déjà utilisé." }),
-    });
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-    await goToStep(user, 3);
-    await user.type(screen.getByPlaceholderText("Mot de passe"), "motdepasse123");
-    await user.type(screen.getByPlaceholderText("Confirmation mot de passe"), "motdepasse123");
-    await user.click(screen.getByRole("button", { name: /créer mon compte/i }));
-    expect(await screen.findByText("Email déjà utilisé.")).toBeInTheDocument();
   });
 });

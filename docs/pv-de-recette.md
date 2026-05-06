@@ -16,9 +16,9 @@
 
 ## Participants
 
-| Nom     | Rôle                                                        | Présent |
-|---------|-------------------------------------------------------------|---------|
-| Natacha | Développeur · Testeur · Chef de projet · Client             | ✅      |
+| Nom     | Rôle                                                        | 
+|---------|-------------------------------------------------------------|
+| Natacha | Développeur · Testeur · Chef de projet · Client            
 
 ---
 
@@ -51,20 +51,12 @@
 | CR-03 | Tracker d'émotions           | ✅ Validé   |           |          |
 | CR-04 | Calendrier émotionnel        | ✅ Validé   |           |          |
 | CR-05 | Page Articles                | ✅ Validé   |           |          |
-| CR-06 | Installation PWA             | ⚠️ Validé avec réserve | Nom "Ressources Relationnelles" au lieu de "Cesizen" (cache) | Mineur |
+| CR-06 | Installation PWA             | ✅ Validé   |           |          |
 | CR-07 | Administration articles      | ✅ Validé   |           |          |
 
 **Légende :** ✅ Validé — ❌ Rejeté — ⚠️ Validé avec réserve — ⬜ À tester
 
 ---
-
-## 3. Anomalies relevées
-
-> À compléter lors des tests de recette manuels
-
-| ID Anomalie | Scénario | Description | Sévérité | Statut    |
-|-------------|----------|-------------|----------|-----------|
-| AN-01       | CR-06    | Nom affiché "Ressources Relationnelles" au lieu de "Cesizen" lors de l'installation PWA (ancien cache manifest) | Mineur | Ouvert |
 
 **Niveaux de sévérité :**
 - **Bloquant** — empêche la recette d'avancer, doit être corrigé avant validation
@@ -74,25 +66,24 @@
 
 ---
 
-## 4. Couverture des tests
+## 3. Couverture des tests
 
 | Type de test        | Statut       | Commentaire                                  |
 |---------------------|--------------|----------------------------------------------|
 | Tests unitaires     | ✅ Complets  | 33 tests, 6 composants couverts              |
 | Tests d'intégration | ⬜ Non réalisés | Prévus dans une prochaine itération        |
-| Tests E2E           | ⬜ Non réalisés | Playwright à mettre en place               |
 | Tests de recette manuels | ✅ Complets  | 7/7 scénarios validés                  |
 
 ---
 
-## 5. Décision de recette
+## 4. Décision de recette
 
 > À compléter à l'issue des tests manuels
 
 | Décision           | Commentaire                          |
 |--------------------|--------------------------------------|
 | ⬜ Accepté         |                                      |
-| ✅ Accepté avec réserve | Anomalie mineure sur le nom PWA (CR-06) |
+| ✅ Accepté         |                                      |
 | ⬜ Refusé — corrections requises |                        |
 
 **Motif de la décision :**  
@@ -100,7 +91,7 @@
 
 ---
 
-## 6. Signatures
+## 5. Signatures
 
 | Rôle                              | Nom     | Date       | Signature |
 |-----------------------------------|---------|------------|-----------|

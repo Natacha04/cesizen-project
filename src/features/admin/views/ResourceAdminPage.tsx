@@ -95,25 +95,18 @@ export function ResourceAdminPage() {
         }}
       >
         <Stack spacing={2}>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
             <Button
               variant="contained"
-              sx={{
-                borderRadius: "999px",
-                textTransform: "none",
-                fontWeight: 700,
-                backgroundColor: "#245f42",
-                "&:hover": { backgroundColor: "#1e5138" },
-              }}
+              sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}
             >
               Articles
             </Button>
-            <Button
-              variant="text"
-              onClick={() => router.push("/admin/emotions")}
-              sx={{ textTransform: "none", color: "#52616d" }}
-            >
+            <Button variant="text" onClick={() => router.push("/admin/emotions")} sx={{ textTransform: "none", color: "#52616d" }}>
               Émotions
+            </Button>
+            <Button variant="text" onClick={() => router.push("/admin/users")} sx={{ textTransform: "none", color: "#52616d" }}>
+              Utilisateurs
             </Button>
           </Stack>
 

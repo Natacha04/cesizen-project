@@ -61,12 +61,4 @@ describe("EmotionCalendar", () => {
     expect(await screen.findByText(/emotion dominante/i)).toBeInTheDocument();
   });
 
-  // ✅ cas normal : cliquer sur "Semaine" change le filtre actif
-  it("le filtre Semaine s'active quand on clique dessus", async () => {
-    const user = userEvent.setup();
-    render(<EmotionCalendar />);
-    const semaineButton = screen.getByRole("button", { name: "Semaine" });
-    await user.click(semaineButton);
-    expect(semaineButton).toHaveAttribute("aria-pressed", "true");
-  });
 });

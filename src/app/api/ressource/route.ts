@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const GET = async () => {
   try {
-    const ressources = await prisma.ressource.findMany({
+    const ressources = await prisma.resource.findMany({
       include: { user: true },
     });
     return NextResponse.json({ ressources });
@@ -44,7 +44,7 @@ export const POST = async (req: Request) => {
       return NextResponse.json({ error: "Durée de lecture invalide ou manquante" }, { status: 400 });
     }
 
-    const newRessource = await prisma.ressource.create({
+    const newRessource = await prisma.resource.create({
       data: {
         title,
         content,

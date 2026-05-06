@@ -65,19 +65,15 @@ export function EmotionAdminPage() {
         }}
       >
         <Stack spacing={2}>
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="text"
-              onClick={() => router.push("/admin")}
-              sx={{ textTransform: "none", color: "#52616d" }}
-            >
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Button variant="text" onClick={() => router.push("/admin")} sx={{ textTransform: "none", color: "#52616d" }}>
               Articles
             </Button>
-            <Button
-              variant="contained"
-              sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}
-            >
+            <Button variant="contained" sx={{ borderRadius: "999px", textTransform: "none", fontWeight: 700, backgroundColor: "#245f42", "&:hover": { backgroundColor: "#1e5138" } }}>
               Émotions
+            </Button>
+            <Button variant="text" onClick={() => router.push("/admin/users")} sx={{ textTransform: "none", color: "#52616d" }}>
+              Utilisateurs
             </Button>
           </Stack>
 

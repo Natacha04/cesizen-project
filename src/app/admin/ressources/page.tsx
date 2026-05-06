@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { RessourceAdminPage } from "@/features/admin/views/RessourceAdminPage";
+import { authOptions } from "@/lib/auth";
+import { ResourceAdminPage } from "@/features/admin/views/ResourceAdminPage";
 
 export default async function AdminRessourcesRoute() {
   const session = await getServerSession(authOptions);
@@ -11,5 +11,5 @@ export default async function AdminRessourcesRoute() {
   const user = session.user as { role: string };
   if (user.role !== "ADMIN") redirect("/");
 
-  return <RessourceAdminPage />;
+  return <ResourceAdminPage />;
 }
