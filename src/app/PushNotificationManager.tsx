@@ -25,7 +25,7 @@ export function PushNotificationManager() {
 
   useEffect(() => {
     if ("serviceWorker" in navigator && "PushManager" in window) {
-      setSupported(true);
+      queueMicrotask(() => setSupported(true));
       navigator.serviceWorker.ready.then((reg) => {
         reg.pushManager.getSubscription().then(setSubscription);
       });

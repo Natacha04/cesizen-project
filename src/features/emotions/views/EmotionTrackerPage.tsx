@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -20,6 +21,7 @@ type EmotionTrackerPageProps = {
 };
 
 export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
+  const router = useRouter();
   const parsedDate = date && dayjs(date).isValid() ? dayjs(date) : dayjs();
   const [selectedEmotion, setSelectedEmotion] = React.useState<EmotionKind>("surprise");
   const [selectedSubEmotion, setSelectedSubEmotion] = React.useState<string | null>(null);
@@ -46,7 +48,7 @@ export function EmotionTrackerPage({ date }: EmotionTrackerPageProps) {
       return;
     }
 
-    window.location.href = "/";
+    router.push("/");
   };
 
   const btnStyle = {
