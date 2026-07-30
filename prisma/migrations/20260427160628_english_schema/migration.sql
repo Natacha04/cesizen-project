@@ -12,10 +12,19 @@
 ALTER TABLE "Ressource" DROP CONSTRAINT "Ressource_userId_fkey";
 
 -- AlterTable
+ALTER TABLE "User" ADD COLUMN "firstName" TEXT,
+ADD COLUMN     "lastName" TEXT;
+
+-- Backfill from old columns before enforcing NOT NULL
+UPDATE "User" SET "firstName" = "firstname", "lastName" = "lastname";
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "firstName" SET NOT NULL,
+ALTER COLUMN "lastName" SET NOT NULL;
+
+-- AlterTable
 ALTER TABLE "User" DROP COLUMN "firstname",
-DROP COLUMN "lastname",
-ADD COLUMN     "firstName" TEXT NOT NULL,
-ADD COLUMN     "lastName" TEXT NOT NULL;
+DROP COLUMN "lastname";
 
 -- DropTable
 DROP TABLE "Ressource";
