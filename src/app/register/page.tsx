@@ -5,7 +5,7 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Inscription"
-      description="La route reste légère et délègue l’UI métier à la feature auth."
+      description="Découvrez votre espace en vous inscrivant."
     >
       <RegisterForm />
     </AuthShell>

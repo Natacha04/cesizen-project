@@ -5,7 +5,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Connexion"
-      description="Un point d’entrée dédié à l’authentification, sans mélanger le routing et la logique de formulaire."
+      description="Découvrez votre espace en vous connectant."
     >
       <LoginForm />
     </AuthShell>
