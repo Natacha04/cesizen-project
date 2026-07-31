@@ -29,12 +29,6 @@ DROP COLUMN "lastname";
 -- DropTable
 DROP TABLE "Ressource";
 
--- DropEnum
-DROP TYPE "RessourceState";
-
--- DropEnum
-DROP TYPE "RessourceType";
-
 -- CreateTable
 CREATE TABLE "Resource" (
     "id" TEXT NOT NULL,
